@@ -2,7 +2,10 @@
 set(PROJECT_SRC_FILES       vkrender/VulkanWindow.cpp
                             vkrender/VulkanDebugMessenger.cpp
                             utilities/VulkanLogger_VulkanValidationLayerLogger.cpp
-                            utilities/VulkanLogger_VulkanRendererApiLogger.cpp                                                                                                                                                                                                                                
+                            utilities/VulkanLogger_VulkanRendererApiLogger.cpp
+                            vkrender/VulkanRenderer.cpp
+                            vkrender/VulkanRenderer_instance.cpp
+                            vkrender/VulkanHelper.cpp                                                                                                                                                                                                                                           
 )
 
 # library & executable config #
