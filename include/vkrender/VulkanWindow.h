@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "vkrender/VulkanRendererExports.hpp"
+#include "utilities/UtilityCommon.hpp"
 
 namespace vkrender
 {
@@ -54,8 +55,8 @@ namespace vkrender
 		PlatformDisplayHandle getDisplayHandle() const;
 #endif
 
-		std::pair<std::uint32_t, std::uint32_t> getDimensions() const ;
-		std::pair<std::uint32_t, std::uint32_t> getFrameBufferSize() const ;
+		utils::Dimension getDimensions() const ;
+		utils::Dimension getFrameBufferSize() const ;
 		
 		// resets to false after returning
 		bool isFrameBufferResized();
@@ -66,8 +67,7 @@ namespace vkrender
 	private:
 		GLFWwindow*		m_pWindow;
 
-		std::uint32_t	m_windowWidth;
-		std::uint32_t	m_windowHeight;
+		utils::Dimension m_windowDimension;		
 
 		bool m_bQuit;
 		bool m_bFrameBufferResized;

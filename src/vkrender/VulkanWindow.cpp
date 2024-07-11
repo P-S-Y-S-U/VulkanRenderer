@@ -4,16 +4,14 @@ namespace vkrender
 {
 	VulkanWindow::VulkanWindow( const std::uint32_t& width, const std::uint32_t& height )
 		:m_pWindow{ nullptr }
-		,m_windowWidth{ width }
-		,m_windowHeight{ height }
+		,m_windowDimension{ width, height }
 		,m_bQuit{ false }
 		,m_bFrameBufferResized{ false }
 	{}
 
 	VulkanWindow::VulkanWindow()
 		:m_pWindow{ nullptr }
-		,m_windowWidth{ 800 }
-		,m_windowHeight{ 600 }
+		,m_windowDimension{ 800, 600 }
 		,m_bQuit{ false }
 		,m_bFrameBufferResized{ false }
 	{
@@ -30,7 +28,7 @@ namespace vkrender
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		m_pWindow = glfwCreateWindow(m_windowWidth, m_windowHeight, "Vulkan", nullptr, nullptr );
+		m_pWindow = glfwCreateWindow(m_windowDimension.m_width, m_windowDimension.m_height, "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer( m_pWindow, this );
 
 		glfwSetFramebufferSizeCallback( m_pWindow, VulkanWindow::framebufferResizeCallback );
@@ -97,12 +95,12 @@ namespace vkrender
 	}
 #endif
 
-	std::pair<std::uint32_t, std::uint32_t> VulkanWindow::getDimensions() const
+	utils::Dimension VulkanWindow::getDimensions() const
 	{
-		return std::pair{ m_windowWidth, m_windowHeight };
+		return m_windowDimension;
 	}
 
-	std::pair<std::uint32_t, std::uint32_t> VulkanWindow::getFrameBufferSize() const
+	utils::Dimension VulkanWindow::getFrameBufferSize() const
 	{
 		std::int32_t frameBufferWidth = 0;
 		std::int32_t frameBufferHeight = 0;
@@ -114,7 +112,7 @@ namespace vkrender
 			glfwWaitEvents();
 		}
 
-		return std::make_pair<std::uint32_t, std::uint32_t>( static_cast<std::uint32_t>( frameBufferWidth ), static_cast<std::uint32_t>( frameBufferHeight ) );
+		return utils::Dimension{ static_cast<std::uint32_t>( frameBufferWidth ), static_cast<std::uint32_t>( frameBufferHeight ) };
 	}
 
 	bool VulkanWindow::isFrameBufferResized()
