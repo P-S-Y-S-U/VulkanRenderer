@@ -24,6 +24,15 @@ void populateDeviceQueueCreateInfo(
     const float* queuePriorities
 );
 
+void populateDeviceCreateInfo( 
+	vk::DeviceCreateInfo& vkDeviceCreateInfo, 
+	const std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos, 
+	const vk::PhysicalDeviceFeatures* pEnabledFeatures,
+    const std::vector<const char*>& deviceExtensionContainer
+);
+
+void logQueueFamilyIndices( const vkrender::QueueFamilyIndices& queueFamilyIndices );
+
 void VulkanRenderer::pickPhysicalDevice()
 {
 	std::vector<vk::PhysicalDevice, std::allocator<vk::PhysicalDevice>> devices = m_vkInstance.enumeratePhysicalDevices();
@@ -149,7 +158,7 @@ void VulkanRenderer::pickPhysicalDevice()
 	if( bestDeviceScore > 0u )
 	{
 		m_vkPhysicalDevice = devices[bestCandidateIndex];
-		m_msaaSampleCount = getMaxUsableSampleCount();
+		m_msaaSampleCount = VulkanHelpers::getMaxUsableSampleCount( m_vkPhysicalDevice );
 		m_deviceExtensionContainer = requiredExtensions;
 		m_deviceExtensionContainer.shrink_to_fit();
 
@@ -165,7 +174,7 @@ void VulkanRenderer::pickPhysicalDevice()
 
 void VulkanRenderer::createLogicalDevice()
 {
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilyIndices( m_vkPhysicalDevice, &m_vkSurface );
+	QueueFamilyIndices queueFamilyIndices = VulkanHelpers::findQueueFamilyIndices( m_vkPhysicalDevice, &m_vkSurface );
 
 	logQueueFamilyIndices( queueFamilyIndices );
 	
@@ -196,7 +205,7 @@ void VulkanRenderer::createLogicalDevice()
 
 	vk::DeviceCreateInfo vkDeviceCreateInfo{};
 	vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_vkPhysicalDevice.getFeatures(); // TODO check state
-	populateDeviceCreateInfo( vkDeviceCreateInfo, deviceQueueCreateInfos, &physicalDeviceFeatures );
+	populateDeviceCreateInfo( vkDeviceCreateInfo, deviceQueueCreateInfos, &physicalDeviceFeatures, m_deviceExtensionContainer );
 
 	m_vkLogicalDevice = m_vkPhysicalDevice.createDevice( vkDeviceCreateInfo );	
 	LOG_INFO("Logical Device created");
@@ -222,7 +231,7 @@ void VulkanRenderer::createLogicalDevice()
 	}
 }
 
-void VulkanRenderer::logQueueFamilyIndices( const vkrender::QueueFamilyIndices& queueFamilyIndices )
+void logQueueFamilyIndices( const vkrender::QueueFamilyIndices& queueFamilyIndices )
 {
 	LOG_DEBUG("Found Queue Family Indices");
 	if( queueFamilyIndices.m_graphicsFamily.has_value() )
@@ -261,13 +270,14 @@ void populateDeviceQueueCreateInfo(
 void populateDeviceCreateInfo( 
 	vk::DeviceCreateInfo& vkDeviceCreateInfo, 
 	const std::vector<vk::DeviceQueueCreateInfo>& queueCreateInfos, 
-	const vk::PhysicalDeviceFeatures* pEnabledFeatures 
+	const vk::PhysicalDeviceFeatures* pEnabledFeatures,
+    const std::vector<const char*>& deviceExtensionContainer
 )
 {
 	using namespace vkrender;
 
-	vkDeviceCreateInfo.enabledExtensionCount = m_deviceExtensionContainer.size();
-	vkDeviceCreateInfo.ppEnabledExtensionNames = m_deviceExtensionContainer.data();
+	vkDeviceCreateInfo.enabledExtensionCount = deviceExtensionContainer.size();
+	vkDeviceCreateInfo.ppEnabledExtensionNames = deviceExtensionContainer.data();
 	vkDeviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
 	vkDeviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
 	vkDeviceCreateInfo.pEnabledFeatures = pEnabledFeatures;
@@ -276,7 +286,8 @@ void populateDeviceCreateInfo(
 		vkDeviceCreateInfo.enabledLayerCount = static_cast<std::uint32_t>(layer::VALIDATION_LAYER.m_layers.size());
 		vkDeviceCreateInfo.ppEnabledLayerNames = layer::VALIDATION_LAYER.m_layers.data();
 	}
-	else {
+	else
+    {
 		vkDeviceCreateInfo.enabledLayerCount = 0;
 	}
 }

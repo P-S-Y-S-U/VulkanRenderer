@@ -13,7 +13,8 @@ class VULKANRENDERER_EXPORTS VulkanHelpers
 {
 public:
     static QueueFamilyIndices findQueueFamilyIndices( const vk::PhysicalDevice& physicalDevice, vk::SurfaceKHR* pVkSurface );
-    static SwapChainSupportDetails querySwapChainSupport( const vk::PhysicalDevice& vkPhysicalDevice, const vk::SurfaceKHR& vkSurface )
+    static SwapChainSupportDetails querySwapChainSupport( const vk::PhysicalDevice& vkPhysicalDevice, const vk::SurfaceKHR& vkSurface );
+    static vk::SampleCountFlagBits getMaxUsableSampleCount( const vk::PhysicalDevice& vkPhysicalDevice );
 };
 
 } // namespace vkrender

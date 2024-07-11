@@ -19,18 +19,18 @@ public:
     void initVulkan( VulkanWindow* pVulkanWindow );
     void shutdown();
 
+#ifdef NDEBUG
+	static constexpr bool ENABLE_VALIDATION_LAYER = false;
+#else
+	static constexpr bool ENABLE_VALIDATION_LAYER = true;
+#endif // NDEBUG
+
 private:
     void createInstance();
     void setupDebugMessenger();
     void createSurface( VulkanWindow* pVulkanWindow );
     void pickPhysicalDevice();
     void createLogicalDevice();
-
-#ifdef NDEBUG
-	static constexpr bool ENABLE_VALIDATION_LAYER = false;
-#else
-	static constexpr bool ENABLE_VALIDATION_LAYER = true;
-#endif // NDEBUG
 
     vk::Instance m_vkInstance;
     vk::DebugUtilsMessengerEXT m_vkDebugUtilsMessenger;
@@ -42,6 +42,7 @@ private:
     vk::Queue m_vkPresentationQueue;
     vk::Queue m_vkTransferQueue;
     bool m_bHasExclusiveTransferQueue;
+    vk::SampleCountFlagBits m_msaaSampleCount;
 
     std::vector<const char*> m_instanceExtensionContainer;
     std::vector<const char*> m_deviceExtensionContainer;
