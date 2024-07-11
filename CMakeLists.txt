@@ -67,7 +67,7 @@ endif(LINUX)
 
 # Additional cmake scripts in sub-directory #
 add_subdirectory(src)
-
+add_subdirectory(test)
 #[[ REMOVE AFTER ADDED
 add_subdirectory(media)
 add_subdirectory(test)]]#

@@ -4,12 +4,23 @@
 #include "utilities/VulkanLogger.h"
 
 #include <vulkan/vulkan_wayland.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace vkrender
 {
 
 VulkanRenderer::VulkanRenderer()
-{}
+{
+    if (utils::VulkanRendererApiLogger::getSingletonPtr() == nullptr)
+	{
+		spdlog::sink_ptr consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+		std::initializer_list<spdlog::sink_ptr> logSinks{
+			consoleSink
+		};
+		utils::VulkanRendererApiLogger::createInstance(logSinks);
+		utils::VulkanRendererApiLogger::getSingletonPtr()->getLogger()->set_level(spdlog::level::debug);
+	}
+}
 
 VulkanRenderer::~VulkanRenderer()
 {
@@ -28,13 +39,18 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 void VulkanRenderer::shutdown()
 {
     m_vkLogicalDevice.destroy();
+	LOG_DEBUG("Logical Device Destroyed");
+
 	m_vkInstance.destroySurfaceKHR( m_vkSurface );
+	LOG_DEBUG("Vulkan Surface Destroyed");
 
 	if( ENABLE_VALIDATION_LAYER )
 	{
 		VulkanDebugMessenger::destroyDebugUtilsMessengerEXT( m_vkInstance, m_vkDebugUtilsMessenger, nullptr );
+		LOG_DEBUG("Debug Messenger Destroyed");
 	}
 	m_vkInstance.destroy();
+	LOG_DEBUG("Vulkan Instance Destroyed");
 }
 
 void VulkanRenderer::createSurface( VulkanWindow* pVulkanWindow )

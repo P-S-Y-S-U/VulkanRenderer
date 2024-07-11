@@ -1,0 +1,3 @@
+add_executable(TriangleApplication TriangleApplication.cpp)
+target_compile_definitions(TriangleApplication PUBLIC ${PROJECT_COMPILER_DEFINITIONS})
+target_link_libraries(TriangleApplication PUBLIC $<BUILD_INTERFACE:vulkanrenderer>)
