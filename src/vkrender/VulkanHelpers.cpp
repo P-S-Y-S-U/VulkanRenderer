@@ -72,4 +72,91 @@ vk::SampleCountFlagBits VulkanHelpers::getMaxUsableSampleCount( const vk::Physic
 	return vk::SampleCountFlagBits::e1;
 }
 
+std::uint32_t VulkanHelpers::findMemoryType(
+	const vk::PhysicalDevice& vkPhysicalDevice,
+	const std::uint32_t& typeFilter, const vk::MemoryPropertyFlags& propertyFlags
+)
+{
+	vk::PhysicalDeviceMemoryProperties memoryProps = vkPhysicalDevice.getMemoryProperties();
+
+	for( auto i = 0u; i < memoryProps.memoryTypeCount; i++ )
+	{
+		if( 
+			( typeFilter & ( 1u << i ) ) &&
+			( memoryProps.memoryTypes[i].propertyFlags & propertyFlags ) == propertyFlags 
+		)
+		{
+			return i;
+		}
+	}
+
+	// TODO throw exception
+}
+
+void VulkanHelpers::createImage(
+	const vk::PhysicalDevice& vkPhysicalDevice, const vk::Device& vkLogicalDevice,
+    const std::uint32_t& width, const std::uint32_t& height, const std::uint32_t& mipmapLevels,
+	const vk::SampleCountFlagBits& numOfSamples,
+    const vk::Format& format, const vk::ImageTiling& tiling,
+    const vk::ImageUsageFlags& usageFlags, const vk::MemoryPropertyFlags& memPropFlags,
+    vk::Image& image, vk::DeviceMemory& imageMemory
+)
+{
+	vk::ImageCreateInfo imageCreateInfo{};
+	imageCreateInfo.imageType = vk::ImageType::e2D;
+	imageCreateInfo.extent.width = static_cast<std::uint32_t>( width );
+	imageCreateInfo.extent.height = static_cast<std::uint32_t>( height );
+	imageCreateInfo.extent.depth = 1;
+	imageCreateInfo.mipLevels = mipmapLevels;
+	imageCreateInfo.arrayLayers = 1;
+	imageCreateInfo.format = format;
+	imageCreateInfo.tiling = tiling;
+	imageCreateInfo.initialLayout = vk::ImageLayout::eUndefined;
+	imageCreateInfo.usage = usageFlags;
+	imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+	imageCreateInfo.samples = numOfSamples;
+	imageCreateInfo.flags = {};
+
+	image = vkLogicalDevice.createImage( imageCreateInfo );
+
+	vk::MemoryRequirements memRequirements = vkLogicalDevice.getImageMemoryRequirements( image );
+	
+	vk::MemoryAllocateInfo allocInfo{};
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = findMemoryType( vkPhysicalDevice, memRequirements.memoryTypeBits, memPropFlags );
+
+	imageMemory = vkLogicalDevice.allocateMemory( allocInfo );
+
+	vkLogicalDevice.bindImageMemory( image, imageMemory, 0 );
+}
+
+vk::ImageView VulkanHelpers::createImageView(
+	const vk::Device& vkLogicalDevice,
+	const vk::Image& image,
+	const vk::Format& format,
+	const vk::ImageAspectFlags& aspect,
+	const std::uint32_t& mipmapLevels
+)
+{
+	vk::ImageViewCreateInfo vkImageViewCreateInfo{};
+	vkImageViewCreateInfo.image = image;
+	vkImageViewCreateInfo.viewType = vk::ImageViewType::e2D;
+    vkImageViewCreateInfo.format = format;
+    vk::ComponentMapping componentMap;
+    componentMap.r = vk::ComponentSwizzle::eIdentity;
+    componentMap.g = vk::ComponentSwizzle::eIdentity;
+    componentMap.b = vk::ComponentSwizzle::eIdentity;
+    componentMap.a = vk::ComponentSwizzle::eIdentity;
+    vkImageViewCreateInfo.components = componentMap;
+    vk::ImageSubresourceRange subResourceRange;
+    subResourceRange.aspectMask = aspect;
+    subResourceRange.baseMipLevel = 0;
+    subResourceRange.levelCount = mipmapLevels;
+    subResourceRange.baseArrayLayer = 0;
+    subResourceRange.layerCount = 1;
+    vkImageViewCreateInfo.subresourceRange = subResourceRange;
+
+	return vkLogicalDevice.createImageView( vkImageViewCreateInfo );
+}
+
 }
