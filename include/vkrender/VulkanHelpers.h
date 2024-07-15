@@ -16,7 +16,7 @@ public:
     static SwapChainSupportDetails querySwapChainSupport( const vk::PhysicalDevice& vkPhysicalDevice, const vk::SurfaceKHR& vkSurface );
     static vk::SampleCountFlagBits getMaxUsableSampleCount( const vk::PhysicalDevice& vkPhysicalDevice );
 
-    static std::uint32_t findMemoryType( 
+    static std::uint32_t findMemoryType(
         const vk::PhysicalDevice& vkPhysicalDevice,
         const std::uint32_t& typeFilter, const vk::MemoryPropertyFlags& propertyFlags
     );
@@ -38,6 +38,12 @@ public:
 	    const vk::ImageAspectFlags& aspect,
 	    const std::uint32_t& mipmapLevels
     );
+
+    static vk::Format findSupportedImgFormat(
+        const vk::PhysicalDevice& vkPhysicalDevice,
+        const std::initializer_list<vk::Format>& candidates,
+        const vk::ImageTiling& tiling, const vk::FormatFeatureFlags& features
+    );  
 };
 
 } // namespace vkrender

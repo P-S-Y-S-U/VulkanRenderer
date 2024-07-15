@@ -76,9 +76,9 @@ void VulkanSwapchain::createSwapchainImageViews()
 
 	for( auto i = 0u; i < m_vkSwapchainImages.size(); i++ )
 	{
-		m_vkSwapchainImageViews[i] = createImageView( 
-            m_vkSwapchainImages[i],
-            m_vkSwapchainImageFormat,
+		m_vkSwapchainImageViews[i] = VulkanHelpers::createImageView(
+            m_vkLogicalDevice,
+            m_vkSwapchainImages[i], m_vkSwapchainImageFormat,
             vk::ImageAspectFlagBits::eColor,
             1
         );
@@ -130,7 +130,8 @@ void VulkanSwapchain::destroySwapchain()
 
 void VulkanSwapchain::createColorResources()
 {
-	createImage(
+	VulkanHelpers::createImage(
+        m_vkPhysicalDevice, m_vkLogicalDevice,
 		m_vkSwapchainExtent.width, m_vkSwapchainExtent.height, 1,
 		m_vkSampleCount,
 		m_vkSwapchainImageFormat, vk::ImageTiling::eOptimal,
@@ -139,9 +140,9 @@ void VulkanSwapchain::createColorResources()
 		m_vkColorImage, m_vkColorImageMemory
 	);
 
-	m_vkColorImageView = createImageView( 
-        m_vkColorImage, 
-        m_vkSwapchainImageFormat, 
+	m_vkColorImageView = VulkanHelpers::createImageView(
+        m_vkLogicalDevice,
+        m_vkColorImage, m_vkSwapchainImageFormat, 
         vk::ImageAspectFlagBits::eColor, 
         1 
     );
@@ -151,13 +152,15 @@ void VulkanSwapchain::createDepthResources()
 {
 	m_vkDepthImageFormat = findDepthFormat();
 
-	createImage(
+	VulkanHelpers::createImage(
+        m_vkPhysicalDevice, m_vkLogicalDevice,
 		m_vkSwapchainExtent.width, m_vkSwapchainExtent.height, 1, m_vkSampleCount,
 		m_vkDepthImageFormat, vk::ImageTiling::eOptimal, 
 		vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal,
 		m_vkDepthImage, m_vkDepthImageMemory
 	);
-	m_vkDepthImageView = createImageView( 
+	m_vkDepthImageView = VulkanHelpers::createImageView(
+        m_vkLogicalDevice,
         m_vkDepthImage,
         m_vkDepthImageFormat,
         vk::ImageAspectFlagBits::eDepth,
@@ -200,7 +203,7 @@ void VulkanSwapchain::createFramebuffers()
 	LOG_INFO( fmt::format("{} Framebuffer created", m_vkSwapchainFramebuffers.size() ) );
 }
 
-vk::SurfaceFormatKHR chooseSwapSurfaceFormat( const vkrender::SwapChainSupportDetails& swapChainSupportDetails )
+vk::SurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat( const SwapChainSupportDetails& swapChainSupportDetails )
 {
     for( const auto& availableFormat : swapChainSupportDetails.surfaceFormats )
     {
@@ -212,7 +215,7 @@ vk::SurfaceFormatKHR chooseSwapSurfaceFormat( const vkrender::SwapChainSupportDe
     return swapChainSupportDetails.surfaceFormats[0];
 }
 
-vk::PresentModeKHR chooseSwapPresentMode( const vkrender::SwapChainSupportDetails& swapChainSupportDetails )
+vk::PresentModeKHR VulkanSwapchain::chooseSwapPresentMode( const SwapChainSupportDetails& swapChainSupportDetails )
 {
     for( const auto& availablePresentMode : swapChainSupportDetails.presentModes )
     {
@@ -224,7 +227,10 @@ vk::PresentModeKHR chooseSwapPresentMode( const vkrender::SwapChainSupportDetail
     return vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D chooseSwapExtent( const vkrender::SwapChainSupportDetails& swapChainSupportDetials, const vkrender::Window& window )
+vk::Extent2D VulkanSwapchain::chooseSwapExtent( 
+    const SwapChainSupportDetails& swapChainSupportDetials, 
+    const utils::Dimension& framebufferSize
+)
 {
     const vk::SurfaceCapabilitiesKHR& surfaceCapabilities = swapChainSupportDetials.capabilities;
 
@@ -234,10 +240,8 @@ vk::Extent2D chooseSwapExtent( const vkrender::SwapChainSupportDetails& swapChai
     }
     else
     {
-        const auto& [width, height] = window.getFrameBufferSize();
-
         vk::Extent2D actualExtent{
-            width, height
+            framebufferSize.m_width, framebufferSize.m_height
         };
 
         actualExtent.width = std::clamp(actualExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width );
@@ -247,7 +251,7 @@ vk::Extent2D chooseSwapExtent( const vkrender::SwapChainSupportDetails& swapChai
     }
 }
  
-std::uint32_t chooseImageCount( const vkrender::SwapChainSupportDetails& swapChainSupportDetails )
+std::uint32_t VulkanSwapchain::chooseImageCount( const SwapChainSupportDetails& swapChainSupportDetails )
 {
     std::uint32_t imageCount = swapChainSupportDetails.capabilities.minImageCount + 1; // always ask for minImageCount + 1
 
@@ -259,5 +263,13 @@ std::uint32_t chooseImageCount( const vkrender::SwapChainSupportDetails& swapCha
     return imageCount;
 }
 
+vk::Format VulkanSwapchain::findDepthFormat()
+{
+    return VulkanHelpers::findSupportedImgFormat(
+        m_vkPhysicalDevice,
+		{ vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
+		vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment
+	);
+}
 
 } // namespace vkrender

@@ -15,7 +15,7 @@ struct SwapchainCreateInfo
     vk::PhysicalDevice vkPhysicalDevice;
     vk::Device vkLogicalDevice;
     vk::SurfaceKHR vkSurface;
-    vk::SampleCountFlags vkSampleCount;
+    vk::SampleCountFlagBits vkSampleCount;
     utils::Dimension framebufferSize;
 };
 
@@ -63,7 +63,7 @@ private:
     vk::ImageView m_vkDepthImageView;
     vk::DeviceMemory m_vkDepthImageMemory;
 
-    vk::SampleCountFlags m_vkSampleCount;
+    vk::SampleCountFlagBits m_vkSampleCount;
 };
 
 } // namespace vkrender

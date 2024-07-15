@@ -1,4 +1,5 @@
 #include "vkrender/VulkanHelpers.h"
+#include "utilities/VulkanLogger.h"
 
 namespace vkrender
 {
@@ -157,6 +158,31 @@ vk::ImageView VulkanHelpers::createImageView(
     vkImageViewCreateInfo.subresourceRange = subResourceRange;
 
 	return vkLogicalDevice.createImageView( vkImageViewCreateInfo );
+}
+
+vk::Format VulkanHelpers::findSupportedImgFormat(
+	const vk::PhysicalDevice& vkPhysicalDevice,
+    const std::initializer_list<vk::Format>& candidates,
+    const vk::ImageTiling& tiling, const vk::FormatFeatureFlags& features
+)
+{
+	for( const vk::Format& format : candidates )
+	{
+		vk::FormatProperties prop = vkPhysicalDevice.getFormatProperties( format );
+
+		if( tiling == vk::ImageTiling::eLinear && (prop.linearTilingFeatures & features) == features )
+		{
+			return format;
+		}
+		else if ( tiling == vk::ImageTiling::eOptimal && (prop.optimalTilingFeatures & features) == features )
+		{
+			return format;
+		}
+	}
+
+	std::string errorMsg{ "failed to find supported format"};
+	LOG_ERROR(errorMsg);
+	throw std::runtime_error(errorMsg);
 }
 
 }
