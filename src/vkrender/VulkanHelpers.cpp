@@ -160,6 +160,91 @@ vk::ImageView VulkanHelpers::createImageView(
 	return vkLogicalDevice.createImageView( vkImageViewCreateInfo );
 }
 
+void VulkanHelpers::transitionImageLayout(
+    VulkanCmdBuffer* pCmdBuffer,
+    const vk::Image& image, const vk::Format& format, 
+    const vk::ImageLayout& oldLayout, const vk::ImageLayout& newLayout,
+    const std::uint32_t& mipmapLevels
+)
+{
+	vk::CommandBuffer* pVkCmdBuf = pCmdBuffer->beginCmdBuffer();
+
+	vk::AccessFlags srcAccessMask;
+	vk::AccessFlags dstAccessMask;
+
+	vk::PipelineStageFlags srcStage;
+	vk::PipelineStageFlags dstStage;
+	
+	vk::ImageAspectFlags aspectMask;
+
+	if( newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal )
+	{
+		aspectMask = vk::ImageAspectFlagBits::eDepth;
+
+		if( hasStencilComponent(format) )
+			aspectMask |= vk::ImageAspectFlagBits::eStencil;
+	}
+	else
+	{
+		aspectMask = vk::ImageAspectFlagBits::eColor;
+	}
+
+	if( oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal )
+	{
+		srcAccessMask = {};
+		dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+		srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		dstStage = vk::PipelineStageFlagBits::eTransfer;
+	}
+	else if( oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal )
+	{
+		srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+		dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+		srcStage = vk::PipelineStageFlagBits::eTransfer;
+		dstStage = vk::PipelineStageFlagBits::eFragmentShader;
+	}
+	else if( oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal )
+	{
+		srcAccessMask = {};
+		dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+		srcStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		dstStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	}
+	else 
+	{
+		std::string errorMsg = "unsupported image layout transition!";
+		LOG_ERROR(errorMsg);
+		throw  std::invalid_argument(errorMsg);
+	}
+
+	vk::ImageMemoryBarrier imgBarrier{};
+	imgBarrier.oldLayout = oldLayout;
+	imgBarrier.newLayout = newLayout;
+	imgBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imgBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	imgBarrier.image = image;
+	imgBarrier.subresourceRange.aspectMask = aspectMask;
+	imgBarrier.subresourceRange.baseMipLevel = 0;
+	imgBarrier.subresourceRange.levelCount = mipmapLevels;
+	imgBarrier.subresourceRange.baseArrayLayer = 0;
+	imgBarrier.subresourceRange.layerCount = 1;
+	imgBarrier.srcAccessMask = srcAccessMask;
+	imgBarrier.dstAccessMask = dstAccessMask;
+
+	pVkCmdBuf->pipelineBarrier( 
+		srcStage, dstStage,
+		{},
+		0, nullptr,
+		0, nullptr,
+		1, &imgBarrier
+	);
+
+	pCmdBuffer->endCmdBuffer();
+}
+
 vk::Format VulkanHelpers::findSupportedImgFormat(
 	const vk::PhysicalDevice& vkPhysicalDevice,
     const std::initializer_list<vk::Format>& candidates,
@@ -183,6 +268,11 @@ vk::Format VulkanHelpers::findSupportedImgFormat(
 	std::string errorMsg{ "failed to find supported format"};
 	LOG_ERROR(errorMsg);
 	throw std::runtime_error(errorMsg);
+}
+
+bool VulkanHelpers::hasStencilComponent( const vk::Format& format )
+{
+	return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
 }
 
 }

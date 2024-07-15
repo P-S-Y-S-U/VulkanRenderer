@@ -3,6 +3,7 @@
 
 #include "vkrender/VulkanSwapChainStructs.hpp"
 #include "vkrender/VulkanRendererExports.hpp"
+#include "vkrender/VulkanCommandBuffer.h"
 #include "utilities/UtilityCommon.hpp"
 
 #include <vulkan/vulkan.hpp>
@@ -16,7 +17,6 @@ struct SwapchainCreateInfo
     vk::Device vkLogicalDevice;
     vk::SurfaceKHR vkSurface;
     vk::SampleCountFlagBits vkSampleCount;
-    utils::Dimension framebufferSize;
 };
 
 class VULKANRENDERER_EXPORTS VulkanSwapchain
@@ -25,14 +25,16 @@ public:
     VulkanSwapchain( const SwapchainCreateInfo& swapchainCreateInfo );
     ~VulkanSwapchain();
 
-    void createSwapchain();
+    void createSwapchain( const utils::Dimension& framebufferDimension );
     void recreateSwapchain( const utils::Dimension& framebufferDimension );
 private:
     void destroySwapchain();
     void createSwapchainImageViews();
+#if 0
     void createColorResources();
     void createDepthResources();
     void createFramebuffers();
+#endif    
 
     vk::SurfaceFormatKHR chooseSwapSurfaceFormat( const SwapChainSupportDetails& swapChainSupportDetails );
     vk::PresentModeKHR chooseSwapPresentMode( const SwapChainSupportDetails& swapChainSupportDetails );
@@ -54,6 +56,8 @@ private:
     vk::Extent2D m_vkSwapchainExtent;
     std::vector<vk::Image> m_vkSwapchainImages;
     std::vector<vk::ImageView> m_vkSwapchainImageViews;
+    vk::SampleCountFlagBits m_vkSampleCount;
+#if 0
     std::vector<vk::Framebuffer> m_vkSwapchainFramebuffers;
 
     vk::Image m_vkColorImage;
@@ -62,8 +66,7 @@ private:
     vk::Image m_vkDepthImage;
     vk::ImageView m_vkDepthImageView;
     vk::DeviceMemory m_vkDepthImageMemory;
-
-    vk::SampleCountFlagBits m_vkSampleCount;
+#endif
 };
 
 } // namespace vkrender

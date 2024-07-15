@@ -11,7 +11,6 @@ VulkanSwapchain::VulkanSwapchain( const SwapchainCreateInfo& swapchainCreateInfo
     ,m_vkLogicalDevice{ swapchainCreateInfo.vkLogicalDevice }
     ,m_vkSurface{ swapchainCreateInfo.vkSurface }
     ,m_vkSampleCount{ swapchainCreateInfo.vkSampleCount }
-    ,m_framebufferSize{ swapchainCreateInfo.framebufferSize }
 {}
 
 VulkanSwapchain::~VulkanSwapchain()
@@ -19,8 +18,10 @@ VulkanSwapchain::~VulkanSwapchain()
     destroySwapchain();
 }
 
-void VulkanSwapchain::createSwapchain()
+void VulkanSwapchain::createSwapchain( const utils::Dimension& framebufferDimension )
 {
+    m_framebufferSize = framebufferDimension;
+
 	const SwapChainSupportDetails& swapChainSupportDetails = VulkanHelpers::querySwapChainSupport(m_vkPhysicalDevice, m_vkSurface);
 
     const vk::SurfaceCapabilitiesKHR& capabilities = swapChainSupportDetails.capabilities;
@@ -90,21 +91,20 @@ void VulkanSwapchain::createSwapchainImageViews()
 
 void VulkanSwapchain::recreateSwapchain( const utils::Dimension& framebufferDimension )
 {
-	m_framebufferSize = framebufferDimension;
-
-	m_vkLogicalDevice.waitIdle();
-
 	destroySwapchain();
 	
-	createSwapchain();
+	createSwapchain( framebufferDimension );
 	createSwapchainImageViews();
+#if 0    
 	createColorResources();
 	createDepthResources();
-	createFramebuffers();	
+    createFramebuffers();
+#endif
 }
 
 void VulkanSwapchain::destroySwapchain()
 {
+#if 0
 	m_vkLogicalDevice.destroyImageView( m_vkColorImageView );
 	m_vkLogicalDevice.destroyImage( m_vkColorImage );
 	m_vkLogicalDevice.freeMemory( m_vkColorImageMemory );
@@ -117,17 +117,19 @@ void VulkanSwapchain::destroySwapchain()
 	{
 		m_vkLogicalDevice.destroyFramebuffer( vkFramebuffer );
 	}
+#endif
 
 	for( auto& vkImageView : m_vkSwapchainImageViews )
 	{
 		m_vkLogicalDevice.destroyImageView( vkImageView );
 	}
-	m_vkSwapchainFramebuffers.clear();
+	// m_vkSwapchainFramebuffers.clear();
 	m_vkSwapchainImageViews.clear();
 
 	m_vkLogicalDevice.destroySwapchainKHR( m_vkSwapchain );
 }
 
+#if 0
 void VulkanSwapchain::createColorResources()
 {
 	VulkanHelpers::createImage(
@@ -167,7 +169,8 @@ void VulkanSwapchain::createDepthResources()
         1
     );
 
-	transitionImageLayout( 
+	VulkanHelpers::transitionImageLayout( 
+        m_pConfigCmdBuffer,
 		m_vkDepthImage, m_vkDepthImageFormat, 
 		vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal,
 		1
@@ -202,6 +205,7 @@ void VulkanSwapchain::createFramebuffers()
 	}
 	LOG_INFO( fmt::format("{} Framebuffer created", m_vkSwapchainFramebuffers.size() ) );
 }
+#endif
 
 vk::SurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat( const SwapChainSupportDetails& swapChainSupportDetails )
 {

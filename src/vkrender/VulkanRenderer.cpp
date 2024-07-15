@@ -34,6 +34,14 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 	createSurface( pVulkanWindow );
 	pickPhysicalDevice();
 	createLogicalDevice();
+	
+	SwapchainCreateInfo swapchainCreateInfo{};
+	swapchainCreateInfo.vkPhysicalDevice = m_vkPhysicalDevice;
+	swapchainCreateInfo.vkLogicalDevice = m_vkLogicalDevice;
+	swapchainCreateInfo.vkSurface = m_vkSurface;
+	swapchainCreateInfo.vkSampleCount = m_msaaSampleCount;
+	m_pVulkanSwapchain = std::make_unique<VulkanSwapchain>( swapchainCreateInfo );
+	m_pVulkanSwapchain->createSwapchain( m_pVulkanWindow->getFrameBufferSize() );
 }
 
 void VulkanRenderer::shutdown()
@@ -51,6 +59,13 @@ void VulkanRenderer::shutdown()
 	}
 	m_vkInstance.destroy();
 	LOG_DEBUG("Vulkan Instance Destroyed");
+}
+
+void VulkanRenderer::recreateSwapchain()
+{
+	m_vkLogicalDevice.waitIdle();
+
+	m_pVulkanSwapchain->recreateSwapchain( m_pVulkanWindow->getFrameBufferSize() );
 }
 
 void VulkanRenderer::createSurface( VulkanWindow* pVulkanWindow )

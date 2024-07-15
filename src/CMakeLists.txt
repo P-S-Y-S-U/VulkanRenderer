@@ -6,7 +6,9 @@ set(PROJECT_SRC_FILES       vkrender/VulkanWindow.cpp
                             vkrender/VulkanRenderer.cpp
                             vkrender/VulkanRenderer_instance.cpp
                             vkrender/VulkanRenderer_device.cpp
-                            vkrender/VulkanHelpers.cpp                                                                                                                                                                                                                                           
+                            vkrender/VulkanSwapchain.cpp
+                            vkrender/VulkanCommandBuffer.cpp
+                            vkrender/VulkanHelpers.cpp                                                                                                                                                                                                                                   
 )
 
 # library & executable config #

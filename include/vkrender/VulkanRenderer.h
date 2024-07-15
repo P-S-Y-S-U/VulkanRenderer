@@ -2,8 +2,9 @@
 #define VKRENDER_VULKAN_RENDERER_H
 
 #include "vkrender/VulkanWindow.h"
-
+#include "vkrender/VulkanSwapchain.h"
 #include "vkrender/VulkanRendererExports.hpp"
+#include "utilities/memory.hpp"
 
 #include <vulkan/vulkan.hpp>
 
@@ -25,6 +26,7 @@ public:
 	static constexpr bool ENABLE_VALIDATION_LAYER = true;
 #endif // NDEBUG
 
+    void recreateSwapchain();
 private:
     void createInstance();
     void setupDebugMessenger();
@@ -47,7 +49,11 @@ private:
     std::vector<const char*> m_instanceExtensionContainer;
     std::vector<const char*> m_deviceExtensionContainer;
 
-    VulkanWindow* m_pVulkanWindow;
+    vk::CommandPool m_vkTransferCommandPool;
+    vk::CommandPool m_vkGraphicsCommandPool;
+
+    VulkanWindow* m_pVulkanWindow;    
+    utils::Uptr<VulkanSwapchain> m_pVulkanSwapchain;
 };
 
 } // namespace vkrender

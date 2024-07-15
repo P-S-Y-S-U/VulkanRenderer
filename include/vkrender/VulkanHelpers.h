@@ -4,6 +4,7 @@
 #include "vkrender/VulkanRendererExports.hpp"
 #include "vkrender/VulkanQueueFamily.hpp"
 #include "vkrender/VulkanSwapChainStructs.hpp"
+#include "vkrender/VulkanCommandBuffer.h"
 #include <vulkan/vulkan.hpp>
 
 namespace vkrender
@@ -39,11 +40,20 @@ public:
 	    const std::uint32_t& mipmapLevels
     );
 
+    static void transitionImageLayout(
+        VulkanCmdBuffer* pCmdBuffer,
+        const vk::Image& image, const vk::Format& format, 
+        const vk::ImageLayout& oldLayout, const vk::ImageLayout& newLayout,
+	    const std::uint32_t& mipmapLevels
+    );
+    
     static vk::Format findSupportedImgFormat(
         const vk::PhysicalDevice& vkPhysicalDevice,
         const std::initializer_list<vk::Format>& candidates,
         const vk::ImageTiling& tiling, const vk::FormatFeatureFlags& features
-    );  
+    );
+
+    static bool hasStencilComponent( const vk::Format& format );
 };
 
 } // namespace vkrender
