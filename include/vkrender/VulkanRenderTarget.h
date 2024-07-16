@@ -4,6 +4,9 @@
 #include "vkrender/VulkanRendererExports.hpp"
 #include <vulkan/vulkan.hpp>
 
+namespace vkrender
+{
+
 struct VULKANRENDERER_EXPORTS VulkanRenderTarget
 {
 public:
@@ -75,5 +78,7 @@ void VulkanRenderTarget::setTargetLayout(
     m_finalLayout = finalLayout;
     m_referenceLayout = referenceLayout;
 }
+
+} // namespace vkrender
 
 #endif 
