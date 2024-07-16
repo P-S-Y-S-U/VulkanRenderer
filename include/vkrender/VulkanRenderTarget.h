@@ -14,7 +14,9 @@ public:
     ~VulkanRenderTarget() = default;
 
     void setTargetStorage(
-        const vk::Format& format, const vk::SampleCountFlagBits& sampleCount = vk::SampleCountFlagBits::e1
+        const vk::Format& format,
+        const vk::SampleCountFlagBits& sampleCount = vk::SampleCountFlagBits::e1,
+        const bool& bUseAsResolveTarget = false
     );
     void setTargetSemantics(
         const vk::AttachmentLoadOp& targetLoadOp, const vk::AttachmentStoreOp& targetStoreOp,
@@ -26,7 +28,7 @@ public:
     );
 
     vk::Format m_targetFormat;
-    vk::SampleCountFlags m_targetSampleCount;
+    vk::SampleCountFlagBits m_targetSampleCount;
 
     vk::AttachmentLoadOp m_targetLoadOp;
     vk::AttachmentStoreOp m_targetStoreOp;
@@ -36,6 +38,8 @@ public:
     vk::ImageLayout m_initialLayout;
     vk::ImageLayout m_finalLayout;
     vk::ImageLayout m_referenceLayout;
+
+    bool m_bUseAsResolveAttachment;
 };
 
 VulkanRenderTarget::VulkanRenderTarget()
@@ -48,14 +52,18 @@ VulkanRenderTarget::VulkanRenderTarget()
     ,m_initialLayout{ vk::ImageLayout::eUndefined }
     ,m_finalLayout{ vk::ImageLayout::eUndefined }
     ,m_referenceLayout{ vk::ImageLayout::eUndefined }
+    ,m_bUseAsResolveAttachment{ false }
 {}
 
 void VulkanRenderTarget::setTargetStorage(
-    const vk::Format& format, const vk::SampleCountFlagBits& sampleCount = vk::SampleCountFlagBits::e1
+    const vk::Format& format,
+    const vk::SampleCountFlagBits& sampleCount,
+    const bool& bUseAsResolveTarget
 )
 {
     m_targetFormat = format;
     m_targetSampleCount = sampleCount;
+    m_bUseAsResolveAttachment = bUseAsResolveTarget;
 }
 
 void VulkanRenderTarget::setTargetSemantics(
