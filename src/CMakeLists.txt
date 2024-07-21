@@ -10,6 +10,7 @@ set(PROJECT_SRC_FILES       vkrender/VulkanWindow.cpp
                             vkrender/VulkanCommandBuffer.cpp
                             vkrender/VulkanRenderPass.cpp
                             vkrender/VulkanDescriptor.cpp
+                            vkrender/VulkanGpuProgram.cpp
                             vkrender/VulkanHelpers.cpp                                                                                                                                                                                                                                   
 )
 
