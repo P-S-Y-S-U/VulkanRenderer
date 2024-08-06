@@ -50,6 +50,8 @@ private:
     void createDescriptorSets();
 
     void destroyDescriptorSet();
+
+    friend class VulkanGfxPipeline;
 };
 
 } // namespace vkrender

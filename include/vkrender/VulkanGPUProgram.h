@@ -33,6 +33,8 @@ private:
 
     void populateShaderBufferFromSourceFile( const std::filesystem::path& filePath, std::vector<char>& shaderBuffer );
     void createShaderModule();
+
+    friend class VulkanGfxPipeline;
 };
 
 } // namespace vkrender

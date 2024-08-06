@@ -44,6 +44,7 @@ private:
     void destroyRenderPass();
 
     friend class VulkanRenderer;
+    friend class VulkanGfxPipeline;
 };
 
 } // namespace vkrender
