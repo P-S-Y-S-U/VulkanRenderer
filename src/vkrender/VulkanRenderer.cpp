@@ -1,5 +1,6 @@
 #include "vkrender/VulkanRenderer.h"
 #include "vkrender/VulkanDebugMessenger.h"
+#include "vkrender/VulkanHelpers.h"
 
 #include "utilities/VulkanLogger.h"
 
@@ -34,6 +35,7 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 	createSurface( pVulkanWindow );
 	pickPhysicalDevice();
 	createLogicalDevice();
+	createCommandPool();
 	
 	SwapchainCreateInfo swapchainCreateInfo{};
 	swapchainCreateInfo.vkPhysicalDevice = m_vkPhysicalDevice;
@@ -101,6 +103,36 @@ void VulkanRenderer::createSurface( VulkanWindow* pVulkanWindow )
 
 #endif
 	LOG_INFO( "Vulkan Surface Created" );
+}
+
+void VulkanRenderer::createCommandPool()
+{
+	QueueFamilyIndices queueFamilyIndices = VulkanHelpers::findQueueFamilyIndices( m_vkPhysicalDevice, &m_vkSurface );
+
+	vk::CommandPoolCreateInfo vkGraphicsCommandPoolInfo{};
+	vkGraphicsCommandPoolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	vkGraphicsCommandPoolInfo.queueFamilyIndex = queueFamilyIndices.m_graphicsFamily.value();
+
+	if( m_bHasExclusiveTransferQueue )
+	{
+		vk::CommandPoolCreateInfo vkTransferCommandPoolInfo{};
+		vkTransferCommandPoolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+		vkTransferCommandPoolInfo.queueFamilyIndex = queueFamilyIndices.m_exclusiveTransferFamily.has_value() ? queueFamilyIndices.m_exclusiveTransferFamily.value() : queueFamilyIndices.m_graphicsFamily.value();
+
+		m_vkGraphicsCommandPool = m_vkLogicalDevice.createCommandPool( vkGraphicsCommandPoolInfo );
+		LOG_INFO("Graphics Command Pool created");
+
+		m_vkTransferCommandPool = m_vkLogicalDevice.createCommandPool( vkTransferCommandPoolInfo );
+		LOG_INFO("Transfer Command Pool created");
+	} 
+	else
+	{
+		m_vkGraphicsCommandPool = m_vkLogicalDevice.createCommandPool( vkGraphicsCommandPoolInfo );
+		LOG_INFO("Graphics Command Pool created");
+
+		m_vkTransferCommandPool = m_vkGraphicsCommandPool;
+		LOG_INFO("Using Graphics Command Pool for Transfer Operations");
+	}
 }
 
 } // namespace vkrender

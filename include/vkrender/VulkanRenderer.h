@@ -33,6 +33,7 @@ private:
     void createSurface( VulkanWindow* pVulkanWindow );
     void pickPhysicalDevice();
     void createLogicalDevice();
+    void createCommandPool();
 
     vk::Instance m_vkInstance;
     vk::DebugUtilsMessengerEXT m_vkDebugUtilsMessenger;
