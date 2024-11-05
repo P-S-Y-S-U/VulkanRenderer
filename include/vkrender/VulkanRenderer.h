@@ -14,6 +14,8 @@ namespace vkrender
 class VULKANRENDERER_EXPORTS VulkanRenderer
 {
 public:
+    using CmdBufPtr = utils::Uptr<VulkanCmdBuffer>;
+
     VulkanRenderer();
     ~VulkanRenderer();
 
@@ -34,6 +36,7 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createCommandPool();
+    void createConfigCommandBuffer();
 
     vk::Instance m_vkInstance;
     vk::DebugUtilsMessengerEXT m_vkDebugUtilsMessenger;
@@ -53,7 +56,9 @@ private:
     vk::CommandPool m_vkTransferCommandPool;
     vk::CommandPool m_vkGraphicsCommandPool;
 
-    VulkanWindow* m_pVulkanWindow;    
+    CmdBufPtr m_pConfigCmdBuffer;
+    
+    VulkanWindow* m_pVulkanWindow;
     utils::Uptr<VulkanSwapchain> m_pVulkanSwapchain;
 };
 

@@ -36,7 +36,8 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 	pickPhysicalDevice();
 	createLogicalDevice();
 	createCommandPool();
-	
+	createConfigCommandBuffer();
+
 	SwapchainCreateInfo swapchainCreateInfo{};
 	swapchainCreateInfo.vkPhysicalDevice = m_vkPhysicalDevice;
 	swapchainCreateInfo.vkLogicalDevice = m_vkLogicalDevice;
@@ -124,7 +125,7 @@ void VulkanRenderer::createCommandPool()
 
 		m_vkTransferCommandPool = m_vkLogicalDevice.createCommandPool( vkTransferCommandPoolInfo );
 		LOG_INFO("Transfer Command Pool created");
-	} 
+	}
 	else
 	{
 		m_vkGraphicsCommandPool = m_vkLogicalDevice.createCommandPool( vkGraphicsCommandPoolInfo );
@@ -133,6 +134,17 @@ void VulkanRenderer::createCommandPool()
 		m_vkTransferCommandPool = m_vkGraphicsCommandPool;
 		LOG_INFO("Using Graphics Command Pool for Transfer Operations");
 	}
+}
+
+void VulkanRenderer::createConfigCommandBuffer()
+{
+	m_pConfigCmdBuffer = std::make_unique<VulkanImmediateCmdBuffer>(
+		&m_vkLogicalDevice,
+		&m_vkGraphicsQueue,
+		&m_vkGraphicsCommandPool
+	);
+	m_pConfigCmdBuffer->allocate();
+	LOG_INFO("Config Command Buffer created");
 }
 
 } // namespace vkrender
