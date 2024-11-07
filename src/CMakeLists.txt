@@ -1,6 +1,7 @@
 # project files src files list #
 set(PROJECT_SRC_FILES       vkrender/VulkanWindow.cpp
                             vkrender/VulkanDebugMessenger.cpp
+                            utilities/Image.cpp
                             utilities/VulkanLogger_VulkanValidationLayerLogger.cpp
                             utilities/VulkanLogger_VulkanRendererApiLogger.cpp
                             vkrender/VulkanRenderer.cpp
