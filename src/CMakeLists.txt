@@ -14,7 +14,9 @@ set(PROJECT_SRC_FILES       vkrender/VulkanWindow.cpp
                             vkrender/VulkanGpuProgram.cpp
                             vkrender/VulkanRenderTarget.cpp
                             vkrender/VulkanGfxPipeline.cpp
-                            vkrender/VulkanHelpers.cpp                                                                                                                                                                                                                             
+                            vkrender/VulkanHelpers.cpp
+                            vkrender/VulkanTexture.cpp
+                            vkrender/VulkanTextureManager.cpp                                                                                                                                                                                                                   
 )
 
 # library & executable config #
