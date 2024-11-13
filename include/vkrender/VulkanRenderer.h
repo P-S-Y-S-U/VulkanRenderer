@@ -21,7 +21,8 @@ public:
 
     void initVulkan( VulkanWindow* pVulkanWindow );
     void shutdown();
-
+    
+    vk::PhysicalDevice getPhysicalDevice() const { return m_vkPhysicalDevice; }
 #ifdef NDEBUG
 	static constexpr bool ENABLE_VALIDATION_LAYER = false;
 #else
@@ -29,6 +30,14 @@ public:
 #endif // NDEBUG
 
     void recreateSwapchain();
+
+    void createBuffer(
+        const vk::DeviceSize& bufferSizeInBytes,
+        const vk::BufferUsageFlags& bufferUsage, const vk::SharingMode& bufferSharing,
+        const vk::MemoryPropertyFlags& memProps,
+        vk::Buffer& buffer, vk::DeviceMemory& bufferMemory
+    );
+
 private:
     void createInstance();
     void setupDebugMessenger();
@@ -60,6 +69,8 @@ private:
     
     VulkanWindow* m_pVulkanWindow;
     utils::Uptr<VulkanSwapchain> m_pVulkanSwapchain;
+
+    friend class VulkanTextureManager;
 };
 
 } // namespace vkrender
