@@ -24,6 +24,9 @@ public:
 
     void createImage();
     void createImageView();
+
+    vk::Format format() const { return m_vkImgFormat; }
+    vk::SampleCountFlagBits sampleCount() const { return m_vkImgSampleCountFlags; }
 private:
     VulkanTextureManager* m_pTextureManager;
 

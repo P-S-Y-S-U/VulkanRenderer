@@ -22,8 +22,8 @@ void VulkanRenderPass::prepareTargetAttachments( const VulkanRenderTargetArray& 
         const VulkanRenderTarget& targetAttachment = attachments[i];
 
         vk::AttachmentDescription& attachmentDesc = m_targetAttachments[i];
-        attachmentDesc.format = targetAttachment.m_targetFormat;
-        attachmentDesc.samples = targetAttachment.m_targetSampleCount;
+        attachmentDesc.format = targetAttachment.m_pTexture->format();
+        attachmentDesc.samples = targetAttachment.m_pTexture->sampleCount();
         attachmentDesc.loadOp = targetAttachment.m_targetLoadOp;
         attachmentDesc.storeOp = targetAttachment.m_targetStoreOp;
         attachmentDesc.stencilLoadOp = targetAttachment.m_stencilLoadOp;
