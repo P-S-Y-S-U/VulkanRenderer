@@ -2,6 +2,7 @@
 #define VKRENDER_VULKAN_RENDER_TARGET_H
 
 #include "vkrender/VulkanRendererExports.hpp"
+#include "vkrender/VulkanTexture.h"
 #include <vulkan/vulkan.hpp>
 
 namespace vkrender
@@ -10,14 +11,9 @@ namespace vkrender
 struct VULKANRENDERER_EXPORTS VulkanRenderTarget
 {
 public:
-    VulkanRenderTarget();
+    VulkanRenderTarget( VulkanTexture* pTexture );
     ~VulkanRenderTarget() = default;
 
-    void setTargetStorage(
-        const vk::Format& format,
-        const vk::SampleCountFlagBits& sampleCount = vk::SampleCountFlagBits::e1,
-        const bool& bUseAsResolveTarget = false
-    );
     void setTargetSemantics(
         const vk::AttachmentLoadOp& targetLoadOp, const vk::AttachmentStoreOp& targetStoreOp,
         const vk::AttachmentLoadOp& stencilLoadOp, const vk::AttachmentStoreOp& stencilStoreOp
@@ -27,8 +23,7 @@ public:
         const vk::ImageLayout& referenceLayout
     );
 
-    vk::Format m_targetFormat;
-    vk::SampleCountFlagBits m_targetSampleCount;
+    VulkanTexture* m_pTexture;
 
     vk::AttachmentLoadOp m_targetLoadOp;
     vk::AttachmentStoreOp m_targetStoreOp;
