@@ -29,6 +29,7 @@ public:
 	static constexpr bool ENABLE_VALIDATION_LAYER = true;
 #endif // NDEBUG
 
+    void destroySwapchain();
     void recreateSwapchain();
 
     void createBuffer(

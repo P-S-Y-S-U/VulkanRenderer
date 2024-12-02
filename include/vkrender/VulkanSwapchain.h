@@ -26,9 +26,9 @@ public:
     ~VulkanSwapchain();
 
     void createSwapchain( const utils::Dimension& framebufferDimension );
+    void destroySwapchain();
     void recreateSwapchain( const utils::Dimension& framebufferDimension );
 private:
-    void destroySwapchain();
     void createSwapchainImageViews();
 #if 0
     void createColorResources();

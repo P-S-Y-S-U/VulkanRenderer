@@ -14,9 +14,7 @@ VulkanSwapchain::VulkanSwapchain( const SwapchainCreateInfo& swapchainCreateInfo
 {}
 
 VulkanSwapchain::~VulkanSwapchain()
-{
-    destroySwapchain();
-}
+{}
 
 void VulkanSwapchain::createSwapchain( const utils::Dimension& framebufferDimension )
 {
@@ -126,7 +124,8 @@ void VulkanSwapchain::destroySwapchain()
 	// m_vkSwapchainFramebuffers.clear();
 	m_vkSwapchainImageViews.clear();
 
-	m_vkLogicalDevice.destroySwapchainKHR( m_vkSwapchain );
+    if( m_vkSwapchain != vk::SwapchainKHR{} )
+	    m_vkLogicalDevice.destroySwapchainKHR( m_vkSwapchain );
 }
 
 #if 0

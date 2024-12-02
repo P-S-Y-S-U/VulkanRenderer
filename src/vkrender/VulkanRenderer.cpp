@@ -58,6 +58,9 @@ void VulkanRenderer::shutdown()
 		m_vkLogicalDevice.destroySampler( elem );
 	LOG_DEBUG("Samplers Destroyed");
 
+	m_pVulkanSwapchain->destroySwapchain();
+	m_pVulkanSwapchain.reset();
+
     m_vkLogicalDevice.destroy();
 	LOG_DEBUG("Logical Device Destroyed");
 
@@ -71,6 +74,11 @@ void VulkanRenderer::shutdown()
 	}
 	m_vkInstance.destroy();
 	LOG_DEBUG("Vulkan Instance Destroyed");
+}
+
+void VulkanRenderer::destroySwapchain()
+{
+	m_pVulkanSwapchain->destroySwapchain();
 }
 
 void VulkanRenderer::recreateSwapchain()
