@@ -38,6 +38,16 @@ public:
         vk::Buffer& buffer, vk::DeviceMemory& bufferMemory
     );
 
+    vk::Sampler* createTexSampler(
+        const vk::Filter& minFilter, const vk::Filter& magFilter,
+        const vk::SamplerAddressMode& uAddrMode, const vk::SamplerAddressMode& vAddrMode, const vk::SamplerAddressMode& wAddrMode,
+        const bool& bEnableAnisotropy,
+        const vk::SamplerMipmapMode& mipmapMode,
+        const float& minLod, const float& maxLod, const float& mipLodBias = 0.0f,
+        const vk::BorderColor& borderColor = vk::BorderColor::eIntOpaqueBlack,
+        const bool& bnormalizedCoords = true,
+        const bool& bCmpEnable = false, const vk::CompareOp& cmpOp = vk::CompareOp::eAlways
+    );
 private:
     void createInstance();
     void setupDebugMessenger();
@@ -69,6 +79,8 @@ private:
     
     VulkanWindow* m_pVulkanWindow;
     utils::Uptr<VulkanSwapchain> m_pVulkanSwapchain;
+
+    std::vector<vk::Sampler> m_samplers;
 
     friend class VulkanTextureManager;
 };

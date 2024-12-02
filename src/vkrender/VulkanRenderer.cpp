@@ -49,6 +49,10 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 
 void VulkanRenderer::shutdown()
 {
+	for( const vk::Sampler& elem : m_samplers )
+		m_vkLogicalDevice.destroySampler( elem );
+	LOG_DEBUG("Samplers Destroyed");
+
     m_vkLogicalDevice.destroy();
 	LOG_DEBUG("Logical Device Destroyed");
 
@@ -107,6 +111,41 @@ void VulkanRenderer::createBuffer(
 
 	m_vkLogicalDevice.bindBufferMemory( buffer, bufferMemory, 0 );
 }	
+
+vk::Sampler* VulkanRenderer::createTexSampler(
+    const vk::Filter& minFilter, const vk::Filter& magFilter,
+    const vk::SamplerAddressMode& uAddrMode, const vk::SamplerAddressMode& vAddrMode, const vk::SamplerAddressMode& wAddrMode,
+    const bool& bEnableAnisotropy,
+    const vk::SamplerMipmapMode& mipmapMode,
+    const float& minLod, const float& maxLod, const float& mipLodBias,
+    const vk::BorderColor& borderColor,
+    const bool& bnormalizedCoords,
+    const bool& bCmpEnable, const vk::CompareOp& cmpOp
+)
+{
+	vk::PhysicalDeviceProperties phyDeviceProp = m_vkPhysicalDevice.getProperties(); 
+
+	vk::SamplerCreateInfo samplerCreateInfo{};
+	samplerCreateInfo.minFilter = minFilter;
+	samplerCreateInfo.magFilter = magFilter;
+	samplerCreateInfo.addressModeU = uAddrMode;
+	samplerCreateInfo.addressModeV = vAddrMode;
+	samplerCreateInfo.addressModeW = wAddrMode;
+	samplerCreateInfo.anisotropyEnable = static_cast<vk::Bool32>( bEnableAnisotropy );
+	samplerCreateInfo.maxAnisotropy = phyDeviceProp.limits.maxSamplerAnisotropy;
+	samplerCreateInfo.borderColor = borderColor;
+	samplerCreateInfo.unnormalizedCoordinates = static_cast<vk::Bool32>( !bnormalizedCoords );
+	samplerCreateInfo.compareEnable = static_cast<vk::Bool32>( bCmpEnable );
+	samplerCreateInfo.compareOp = cmpOp;
+	samplerCreateInfo.mipmapMode = mipmapMode;
+	samplerCreateInfo.mipLodBias = mipLodBias;
+	samplerCreateInfo.minLod = minLod;
+	samplerCreateInfo.maxLod = maxLod;
+
+	m_samplers.push_back( m_vkLogicalDevice.createSampler( samplerCreateInfo ) );
+
+	return &m_samplers[ m_samplers.size() - 1 ];
+}
 
 void VulkanRenderer::createSurface( VulkanWindow* pVulkanWindow )
 {
