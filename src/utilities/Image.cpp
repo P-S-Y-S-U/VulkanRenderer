@@ -1,7 +1,9 @@
 #include "utilities/Image.h"
 #include "utilities/VulkanLogger.h"
 
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+
 #include <spdlog/spdlog.h>
 
 namespace utils
