@@ -49,6 +49,11 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 
 void VulkanRenderer::shutdown()
 {
+	if( m_bHasExclusiveTransferQueue )
+		m_vkLogicalDevice.destroyCommandPool( m_vkTransferCommandPool );
+	m_vkLogicalDevice.destroyCommandPool( m_vkGraphicsCommandPool );
+	LOG_DEBUG("Command Pool Destroyed");
+
 	for( const vk::Sampler& elem : m_samplers )
 		m_vkLogicalDevice.destroySampler( elem );
 	LOG_DEBUG("Samplers Destroyed");
