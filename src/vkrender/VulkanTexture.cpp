@@ -1,4 +1,5 @@
 #include "vkrender/VulkanTexture.h"
+#include "vkrender/VulkanRenderer.h"
 #include "vkrender/VulkanTextureManager.h"
 #include "vkrender/VulkanHelpers.h"
 

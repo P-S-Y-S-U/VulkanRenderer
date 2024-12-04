@@ -160,6 +160,30 @@ vk::Sampler* VulkanRenderer::createTexSampler(
 	return &m_samplers[ m_samplers.size() - 1 ];
 }
 
+vk::Framebuffer VulkanRenderer::createFramebuffer(
+    const VulkanRenderPass& renderPassToBind,
+    const VulkanRenderTargetArray& renderTargets,
+    const utils::Dimension& framebufferSize,
+    const std::uint32_t& layers
+)
+{
+	std::vector<vk::ImageView> attachments{ renderTargets.size() };
+	for( auto i = 0u; i < renderTargets.size(); i++ )
+	{
+		attachments[i] = renderTargets[i].m_imgView;
+	}
+
+	vk::FramebufferCreateInfo fbCreateInfo{};
+	fbCreateInfo.renderPass = renderPassToBind.m_vkRenderPass;
+	fbCreateInfo.attachmentCount = attachments.size();
+	fbCreateInfo.pAttachments = attachments.data();
+	fbCreateInfo.width = framebufferSize.m_width;
+	fbCreateInfo.height = framebufferSize.m_height;
+	fbCreateInfo.layers = layers;
+
+	return m_vkLogicalDevice.createFramebuffer( fbCreateInfo );
+}
+
 void VulkanRenderer::createSurface( VulkanWindow* pVulkanWindow )
 {
     m_pVulkanWindow = pVulkanWindow;

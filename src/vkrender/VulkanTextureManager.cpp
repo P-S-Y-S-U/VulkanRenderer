@@ -1,4 +1,5 @@
 #include "vkrender/VulkanTextureManager.h"
+#include "vkrender/VulkanRenderer.h"
 #include "vkrender/VulkanTexture.h"
 #include "vkrender/VulkanCommandBuffer.h"
 #include "vkrender/VulkanHelpers.h"
@@ -307,5 +308,7 @@ void VulkanTextureManager::generateMipmaps( VulkanTexture* pTexture )
 
 	cmdBuf->endCmdBuffer();
 }
+
+vk::Device* VulkanTextureManager::getDevice() const { return &m_pVkRenderer->m_vkLogicalDevice; }
 
 } // namespace vkrender

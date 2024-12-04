@@ -3,6 +3,8 @@
 
 #include "vkrender/VulkanWindow.h"
 #include "vkrender/VulkanSwapchain.h"
+#include "vkrender/VulkanRenderPass.h"
+#include "vkrender/VulkanCommon.hpp"
 #include "vkrender/VulkanRendererExports.hpp"
 #include "utilities/memory.hpp"
 
@@ -10,6 +12,8 @@
 
 namespace vkrender
 {
+
+class VulkanTextureManager;
 
 class VULKANRENDERER_EXPORTS VulkanRenderer
 {
@@ -48,6 +52,13 @@ public:
         const vk::BorderColor& borderColor = vk::BorderColor::eIntOpaqueBlack,
         const bool& bnormalizedCoords = true,
         const bool& bCmpEnable = false, const vk::CompareOp& cmpOp = vk::CompareOp::eAlways
+    );
+
+    vk::Framebuffer createFramebuffer(
+        const VulkanRenderPass& renderPassToBind,
+        const VulkanRenderTargetArray& renderTargets,
+        const utils::Dimension& framebufferSize,
+        const std::uint32_t& layers
     );
 private:
     void createInstance();

@@ -3,6 +3,7 @@
 
 #include "vkrender/VulkanRendererExports.hpp"
 #include "vkrender/VulkanRenderTarget.h"
+#include "vkrender/VulkanCommon.hpp"
 
 #include <vulkan/vulkan.hpp>
 
@@ -12,8 +13,6 @@ namespace vkrender
 class VULKANRENDERER_EXPORTS VulkanRenderPass
 {
 public:
-    using VulkanRenderTargetArray = std::vector<VulkanRenderTarget>;
-
     VulkanRenderPass( vk::Device* pLogicalDevice, const std::string& renderPassName = "Color Pass" );
     ~VulkanRenderPass();
     

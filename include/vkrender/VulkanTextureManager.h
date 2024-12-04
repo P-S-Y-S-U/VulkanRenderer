@@ -1,7 +1,6 @@
 #ifndef VKRENDER_VULKAN_TEXTURE_MANAGER_H
 #define VKRENDER_VULKAN_TEXTURE_MANAGER_H
 
-#include "vkrender/VulkanRenderer.h"
 #include "vkrender/VulkanRendererExports.hpp"
 
 #include "utilities/Image.h"
@@ -12,12 +11,13 @@
 namespace vkrender
 {
 
+class VulkanRenderer;
 class VulkanTexture;
 
 class VULKANRENDERER_EXPORTS VulkanTextureManager
 {
 public:
-    VulkanTextureManager( vkrender::VulkanRenderer* pVkRenderer );
+    VulkanTextureManager( VulkanRenderer* pVkRenderer );
     ~VulkanTextureManager();
 
     VulkanTexture* createTexture(
@@ -47,9 +47,9 @@ public:
     void generateMipmaps( VulkanTexture* pTexture );
     
     VulkanRenderer* getRenderer() const { return m_pVkRenderer; }
-    vk::Device* getDevice() const { return &m_pVkRenderer->m_vkLogicalDevice; }
+    vk::Device* getDevice() const;
 private:
-    vkrender::VulkanRenderer* m_pVkRenderer;
+    VulkanRenderer* m_pVkRenderer;
 
     std::vector<VulkanTexture> m_textureArray;
 };
