@@ -11,7 +11,15 @@ namespace vkrender
 struct VULKANRENDERER_EXPORTS VulkanRenderTarget
 {
 public:
-    VulkanRenderTarget( VulkanTexture* pTexture );
+    VulkanRenderTarget( 
+        const vk::ImageView& imgView, const vk::Format& imgFormat,
+        const vk::SampleCountFlagBits& sampleCount,
+        const bool& bUseAsResolveAttachment = false
+    );
+    VulkanRenderTarget(
+        VulkanTexture* pTexture,
+        const bool& m_bUseAsResolveAttachment = false
+    );
     ~VulkanRenderTarget() = default;
 
     void setTargetSemantics(
@@ -23,7 +31,9 @@ public:
         const vk::ImageLayout& referenceLayout
     );
 
-    VulkanTexture* m_pTexture;
+    vk::ImageView m_imgView;
+    vk::Format m_imgFormat;
+    vk::SampleCountFlagBits m_imgSampleCount;
 
     vk::AttachmentLoadOp m_targetLoadOp;
     vk::AttachmentStoreOp m_targetStoreOp;

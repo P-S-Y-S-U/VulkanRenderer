@@ -3,8 +3,28 @@
 namespace vkrender
 {
 
-VulkanRenderTarget::VulkanRenderTarget( VulkanTexture* pTexture )
-    :m_pTexture{ pTexture }
+VulkanRenderTarget::VulkanRenderTarget( 
+    const vk::ImageView& imgView, const vk::Format& imgFormat,
+    const vk::SampleCountFlagBits& sampleCount,
+    const bool& bUseAsResolveAttachment
+)
+    :m_imgView{ imgView }
+    ,m_imgFormat{ imgFormat }
+    ,m_imgSampleCount{ sampleCount }
+    ,m_targetLoadOp{ vk::AttachmentLoadOp::eDontCare }
+    ,m_targetStoreOp{ vk::AttachmentStoreOp::eDontCare }
+    ,m_stencilLoadOp{ vk::AttachmentLoadOp::eDontCare }
+    ,m_stencilStoreOp{ vk::AttachmentStoreOp::eDontCare }
+    ,m_initialLayout{ vk::ImageLayout::eUndefined }
+    ,m_finalLayout{ vk::ImageLayout::eUndefined }
+    ,m_referenceLayout{ vk::ImageLayout::eUndefined }
+    ,m_bUseAsResolveAttachment{ false }
+{}
+
+VulkanRenderTarget::VulkanRenderTarget( VulkanTexture* pTexture, const bool& bUseAsResolveAttachment )
+    :m_imgView{ pTexture->imageView() }
+    ,m_imgFormat{ pTexture->format() }
+    ,m_imgSampleCount{ pTexture->sampleCount() }
     ,m_targetLoadOp{ vk::AttachmentLoadOp::eDontCare }
     ,m_targetStoreOp{ vk::AttachmentStoreOp::eDontCare }
     ,m_stencilLoadOp{ vk::AttachmentLoadOp::eDontCare }

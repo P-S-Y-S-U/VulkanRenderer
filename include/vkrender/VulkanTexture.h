@@ -25,6 +25,7 @@ public:
     void createImage();
     void createImageView();
 
+    vk::ImageView imageView() const { return m_vkImageView; }
     vk::Format format() const { return m_vkImgFormat; }
     vk::SampleCountFlagBits sampleCount() const { return m_vkImgSampleCountFlags; }
 private:
