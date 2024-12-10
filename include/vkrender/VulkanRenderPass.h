@@ -44,6 +44,7 @@ private:
 
     friend class VulkanRenderer;
     friend class VulkanGfxPipeline;
+    friend class VulkanSwapchain;
 };
 
 } // namespace vkrender

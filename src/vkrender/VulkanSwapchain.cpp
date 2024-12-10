@@ -1,5 +1,6 @@
 #include "vkrender/VulkanSwapchain.h"
 #include "vkrender/VulkanQueueFamily.hpp"
+#include "vkrender/VulkanRenderTarget.h"
 #include "vkrender/VulkanHelpers.h"
 #include "utilities/VulkanLogger.h"
 
@@ -87,36 +88,54 @@ void VulkanSwapchain::createSwapchainImageViews()
 	LOG_INFO("Swapchain ImageViews created");
 }
 
-void VulkanSwapchain::recreateSwapchain( const utils::Dimension& framebufferDimension )
+void VulkanSwapchain::recreateSwapchain( 
+    const utils::Dimension& framebufferDimension,
+    const VulkanRenderPass& passToBind, const VulkanRenderTargetArray& prependRTs
+)
 {
 	destroySwapchain();
 	
 	createSwapchain( framebufferDimension );
 	createSwapchainImageViews();
-#if 0    
-	createColorResources();
-	createDepthResources();
-    createFramebuffers();
-#endif
+    createSwapchainFramebuffers( passToBind, prependRTs );
+}
+
+void VulkanSwapchain::createSwapchainFramebuffers( const VulkanRenderPass& passToBind, const VulkanRenderTargetArray& prependRTs )
+{
+    m_swapchainFramebuffers.resize( m_vkSwapchainImages.size() );
+
+    for( auto i = 0u; i < m_swapchainFramebuffers.size(); i++ )
+    {
+        VulkanRenderTargetArray targets{ prependRTs };
+        VulkanRenderTarget& swapchainRT = targets.emplace_back(
+            m_vkSwapchainImageViews[i], m_vkSwapchainImageFormat,
+            m_vkSampleCount,
+            !prependRTs.empty()
+        );
+        prepareSwapchainAttachment( swapchainRT );
+        m_swapchainFramebuffers[i] = createFramebuffer(
+            passToBind,
+            targets,
+            m_framebufferSize,
+            1
+        );
+    }
+}
+
+void VulkanSwapchain::prepareSwapchainAttachment( VulkanRenderTarget& swapchainRT )
+{
+    swapchainRT.setTargetLayout(
+        vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR,
+        vk::ImageLayout::eColorAttachmentOptimal
+    );
+    swapchainRT.setTargetSemantics(
+        vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore,
+        vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore
+    );
 }
 
 void VulkanSwapchain::destroySwapchain()
 {
-#if 0
-	m_vkLogicalDevice.destroyImageView( m_vkColorImageView );
-	m_vkLogicalDevice.destroyImage( m_vkColorImage );
-	m_vkLogicalDevice.freeMemory( m_vkColorImageMemory );
-
-	m_vkLogicalDevice.destroyImageView( m_vkDepthImageView );
-	m_vkLogicalDevice.destroyImage( m_vkDepthImage );
-	m_vkLogicalDevice.freeMemory( m_vkDepthImageMemory );
-
-	for( auto& vkFramebuffer : m_vkSwapchainFramebuffers )
-	{
-		m_vkLogicalDevice.destroyFramebuffer( vkFramebuffer );
-	}
-#endif
-
 	for( auto& vkImageView : m_vkSwapchainImageViews )
 	{
 		m_vkLogicalDevice.destroyImageView( vkImageView );
@@ -127,84 +146,6 @@ void VulkanSwapchain::destroySwapchain()
     if( m_vkSwapchain != vk::SwapchainKHR{} )
 	    m_vkLogicalDevice.destroySwapchainKHR( m_vkSwapchain );
 }
-
-#if 0
-void VulkanSwapchain::createColorResources()
-{
-	VulkanHelpers::createImage(
-        m_vkPhysicalDevice, m_vkLogicalDevice,
-		m_vkSwapchainExtent.width, m_vkSwapchainExtent.height, 1,
-		m_vkSampleCount,
-		m_vkSwapchainImageFormat, vk::ImageTiling::eOptimal,
-		vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
-		vk::MemoryPropertyFlagBits::eDeviceLocal,
-		m_vkColorImage, m_vkColorImageMemory
-	);
-
-	m_vkColorImageView = VulkanHelpers::createImageView(
-        m_vkLogicalDevice,
-        m_vkColorImage, m_vkSwapchainImageFormat, 
-        vk::ImageAspectFlagBits::eColor, 
-        1 
-    );
-}
-
-void VulkanSwapchain::createDepthResources()
-{
-	m_vkDepthImageFormat = findDepthFormat();
-
-	VulkanHelpers::createImage(
-        m_vkPhysicalDevice, m_vkLogicalDevice,
-		m_vkSwapchainExtent.width, m_vkSwapchainExtent.height, 1, m_vkSampleCount,
-		m_vkDepthImageFormat, vk::ImageTiling::eOptimal, 
-		vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal,
-		m_vkDepthImage, m_vkDepthImageMemory
-	);
-	m_vkDepthImageView = VulkanHelpers::createImageView(
-        m_vkLogicalDevice,
-        m_vkDepthImage,
-        m_vkDepthImageFormat,
-        vk::ImageAspectFlagBits::eDepth,
-        1
-    );
-
-	VulkanHelpers::transitionImageLayout( 
-        m_pConfigCmdBuffer,
-		m_vkDepthImage, m_vkDepthImageFormat, 
-		vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal,
-		1
-	);
-
-	LOG_INFO("Depth Resources Created");
-}
-
-void VulkanSwapchain::createFramebuffers()
-{
-	m_vkSwapchainFramebuffers.resize( m_vkSwapchainImageViews.size() );
-
-	for( size_t i = 0; i < m_vkSwapchainFramebuffers.size(); i++ )
-	{
-		std::array<vk::ImageView, 3> attachments = {
-			m_vkColorImageView,
-			m_vkDepthImageView,
-			m_vkSwapchainImageViews[i]
-		};
-
-		vk::FramebufferCreateInfo vkFrameBufferInfo{};
-		vkFrameBufferInfo.renderPass = m_vkRenderPass;
-		vkFrameBufferInfo.attachmentCount = static_cast<std::uint32_t>( attachments.size() );
-		vkFrameBufferInfo.pAttachments = attachments.data();
-		vkFrameBufferInfo.width = m_vkSwapchainExtent.width;
-		vkFrameBufferInfo.height = m_vkSwapchainExtent.height;
-		vkFrameBufferInfo.layers = 1;
-
-		vk::Framebuffer vkFrameBuffer = m_vkLogicalDevice.createFramebuffer( vkFrameBufferInfo );
-
-		m_vkSwapchainFramebuffers[i] = vkFrameBuffer;
-	}
-	LOG_INFO( fmt::format("{} Framebuffer created", m_vkSwapchainFramebuffers.size() ) );
-}
-#endif
 
 vk::SurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat( const SwapChainSupportDetails& swapChainSupportDetails )
 {
@@ -273,6 +214,30 @@ vk::Format VulkanSwapchain::findDepthFormat()
 		{ vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
 		vk::ImageTiling::eOptimal, vk::FormatFeatureFlagBits::eDepthStencilAttachment
 	);
+}
+
+vk::Framebuffer VulkanSwapchain::createFramebuffer(
+    const VulkanRenderPass& renderPassToBind,
+    const VulkanRenderTargetArray& renderTargets,
+    const utils::Dimension& framebufferSize,
+    const std::uint32_t& layers
+)
+{
+	std::vector<vk::ImageView> attachments{ renderTargets.size() };
+	for( auto i = 0u; i < renderTargets.size(); i++ )
+	{
+		attachments[i] = renderTargets[i].m_imgView;
+	}
+
+	vk::FramebufferCreateInfo fbCreateInfo{};
+	fbCreateInfo.renderPass = renderPassToBind.m_vkRenderPass;
+	fbCreateInfo.attachmentCount = attachments.size();
+	fbCreateInfo.pAttachments = attachments.data();
+	fbCreateInfo.width = framebufferSize.m_width;
+	fbCreateInfo.height = framebufferSize.m_height;
+	fbCreateInfo.layers = layers;
+
+	return m_vkLogicalDevice.createFramebuffer( fbCreateInfo );
 }
 
 } // namespace vkrender

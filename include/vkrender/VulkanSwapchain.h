@@ -2,6 +2,8 @@
 #define VKRENDER_VULKAN_SWAPCHAIN_H
 
 #include "vkrender/VulkanSwapChainStructs.hpp"
+#include "vkrender/VulkanCommon.hpp"
+#include "vkrender/VulkanRenderPass.h"
 #include "vkrender/VulkanRendererExports.hpp"
 #include "vkrender/VulkanCommandBuffer.h"
 #include "utilities/UtilityCommon.hpp"
@@ -27,14 +29,11 @@ public:
 
     void createSwapchain( const utils::Dimension& framebufferDimension );
     void destroySwapchain();
-    void recreateSwapchain( const utils::Dimension& framebufferDimension );
+    void createSwapchainFramebuffers( const VulkanRenderPass& passToBind, const VulkanRenderTargetArray& prependRTs );
+    void prepareSwapchainAttachment( VulkanRenderTarget& swapchainRT );
+    void recreateSwapchain( const utils::Dimension& framebufferDimension, const VulkanRenderPass& passToBind, const VulkanRenderTargetArray& prependRTs );
 private:
     void createSwapchainImageViews();
-#if 0
-    void createColorResources();
-    void createDepthResources();
-    void createFramebuffers();
-#endif    
 
     vk::SurfaceFormatKHR chooseSwapSurfaceFormat( const SwapChainSupportDetails& swapChainSupportDetails );
     vk::PresentModeKHR chooseSwapPresentMode( const SwapChainSupportDetails& swapChainSupportDetails );
@@ -42,6 +41,13 @@ private:
     std::uint32_t chooseImageCount( const SwapChainSupportDetails& swapChainSupportDetails );
 
     vk::Format findDepthFormat();
+
+    vk::Framebuffer VulkanSwapchain::createFramebuffer(
+        const VulkanRenderPass& renderPassToBind,
+        const VulkanRenderTargetArray& renderTargets,
+        const utils::Dimension& framebufferSize,
+        const std::uint32_t& layers
+    );
 
     vk::PhysicalDevice m_vkPhysicalDevice;
     vk::Device m_vkLogicalDevice;
@@ -56,17 +62,8 @@ private:
     vk::Extent2D m_vkSwapchainExtent;
     std::vector<vk::Image> m_vkSwapchainImages;
     std::vector<vk::ImageView> m_vkSwapchainImageViews;
+    std::vector<vk::Framebuffer> m_swapchainFramebuffers;
     vk::SampleCountFlagBits m_vkSampleCount;
-#if 0
-    std::vector<vk::Framebuffer> m_vkSwapchainFramebuffers;
-
-    vk::Image m_vkColorImage;
-    vk::ImageView m_vkColorImageView;
-    vk::DeviceMemory m_vkColorImageMemory;
-    vk::Image m_vkDepthImage;
-    vk::ImageView m_vkDepthImageView;
-    vk::DeviceMemory m_vkDepthImageMemory;
-#endif
 };
 
 } // namespace vkrender
