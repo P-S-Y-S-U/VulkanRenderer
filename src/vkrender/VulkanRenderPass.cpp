@@ -13,13 +13,13 @@ VulkanRenderPass::~VulkanRenderPass()
     destroyRenderPass();
 }
 
-void VulkanRenderPass::prepareTargetAttachments( const VulkanRenderTargetArray& attachments )
+void VulkanRenderPass::prepareTargetAttachments( const VulkanAttachmentBindingArray& attachments )
 {
     m_targetAttachments.resize( attachments.size() );
 
     for( auto i = 0u; i < attachments.size(); i++ )
     {
-        const VulkanRenderTarget& targetAttachment = attachments[i];
+        const VulkanAttachmentBinding& targetAttachment = attachments[i];
 
         vk::AttachmentDescription& attachmentDesc = m_targetAttachments[i];
         attachmentDesc.format = targetAttachment.m_imgFormat;

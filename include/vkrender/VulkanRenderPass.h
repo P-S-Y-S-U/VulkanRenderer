@@ -17,7 +17,7 @@ public:
     ~VulkanRenderPass();
     
     // TODO Need to revisit this attachment & subpass API
-    void prepareTargetAttachments( const VulkanRenderTargetArray& attachments );
+    void prepareTargetAttachments( const VulkanAttachmentBindingArray& attachments );
     std::uint32_t addSubPass(
         const vk::PipelineBindPoint& pipelineBindPoint,
         const std::uint32_t& srcSubPass, const std::uint32_t& destSubPass,

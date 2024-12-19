@@ -136,11 +136,16 @@ void VulkanSwapchain::prepareSwapchainAttachment( VulkanRenderTarget& swapchainR
 
 void VulkanSwapchain::destroySwapchain()
 {
+    for( auto& vkFramebuffer : m_swapchainFramebuffers )
+    {
+        m_vkLogicalDevice.destroyFramebuffer( vkFramebuffer );
+    }
+
 	for( auto& vkImageView : m_vkSwapchainImageViews )
 	{
 		m_vkLogicalDevice.destroyImageView( vkImageView );
 	}
-	// m_vkSwapchainFramebuffers.clear();
+	m_swapchainFramebuffers.clear();
 	m_vkSwapchainImageViews.clear();
 
     if( m_vkSwapchain != vk::SwapchainKHR{} )

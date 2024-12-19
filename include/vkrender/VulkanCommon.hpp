@@ -6,10 +6,11 @@
 namespace vkrender
 {
 
-class VulkanRenderTarget;
+struct VulkanRenderTarget;
+struct VulkanAttachmentBinding;
 
 using VulkanRenderTargetArray = std::vector<VulkanRenderTarget>;
-
+using VulkanAttachmentBindingArray = std::vector<VulkanAttachmentBinding>;
 
 }
 

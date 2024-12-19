@@ -26,6 +26,8 @@ public:
     void initVulkan( VulkanWindow* pVulkanWindow );
     void shutdown();
     
+    void prepareRendering();
+
     vk::PhysicalDevice getPhysicalDevice() const { return m_vkPhysicalDevice; }
 #ifdef NDEBUG
 	static constexpr bool ENABLE_VALIDATION_LAYER = false;
@@ -91,8 +93,11 @@ private:
     
     VulkanWindow* m_pVulkanWindow;
     utils::Uptr<VulkanSwapchain> m_pVulkanSwapchain;
+    utils::Uptr<VulkanTextureManager> m_pTextureManager;
 
     std::vector<vk::Sampler> m_samplers;
+
+    utils::Uptr<VulkanRenderPass> m_presentationRenderpass;
 
     friend class VulkanTextureManager;
 };

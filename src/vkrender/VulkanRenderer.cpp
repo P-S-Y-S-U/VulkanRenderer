@@ -1,6 +1,7 @@
 #include "vkrender/VulkanRenderer.h"
 #include "vkrender/VulkanDebugMessenger.h"
 #include "vkrender/VulkanHelpers.h"
+#include "vkrender/VulkanTextureManager.h"
 
 #include "utilities/VulkanLogger.h"
 
@@ -45,6 +46,8 @@ void VulkanRenderer::initVulkan( VulkanWindow* pVulkanWindow )
 	swapchainCreateInfo.vkSampleCount = m_msaaSampleCount;
 	m_pVulkanSwapchain = std::make_unique<VulkanSwapchain>( swapchainCreateInfo );
 	m_pVulkanSwapchain->createSwapchain( m_pVulkanWindow->getFrameBufferSize() );
+
+	m_pTextureManager = std::make_unique<VulkanTextureManager>( this );
 }
 
 void VulkanRenderer::shutdown()
@@ -74,6 +77,15 @@ void VulkanRenderer::shutdown()
 	}
 	m_vkInstance.destroy();
 	LOG_DEBUG("Vulkan Instance Destroyed");
+}
+
+void VulkanRenderer::prepareRendering()
+{
+	m_presentationRenderpass = std::make_unique<VulkanRenderPass>(
+		&m_vkLogicalDevice, "Presentation Pass"
+	);
+	VulkanRenderTargetArray prependTargets{};
+	
 }
 
 void VulkanRenderer::destroySwapchain()

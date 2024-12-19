@@ -8,30 +8,45 @@
 namespace vkrender
 {
 
+struct VulkanAttachmentBinding;
+
 struct VULKANRENDERER_EXPORTS VulkanRenderTarget
 {
 public:
     VulkanRenderTarget( 
         const vk::ImageView& imgView, const vk::Format& imgFormat,
-        const vk::SampleCountFlagBits& sampleCount,
+        const vk::SampleCountFlagBits& sampleCount
+    );
+    VulkanRenderTarget( VulkanTexture* pTexture );
+    ~VulkanRenderTarget() = default;
+
+    void setAttachmentBinding( const VulkanAttachmentBinding& binding ) { m_attachmentBinding = binding; }
+
+    vk::ImageView m_imgView;
+    vk::Format m_imgFormat;
+    vk::SampleCountFlagBits m_imgSampleCount;
+
+    VulkanAttachmentBinding m_attachmentBinding;
+};
+
+struct VULKANRENDERER_EXPORTS VulkanAttachmentBinding
+{
+    VulkanAttachmentBinding();
+    explicit VulkanAttachmentBinding(
+        const vk::Format& imgFormat, const vk::SampleCountFlagBits& sampleCount,
+        const vk::ImageLayout& attachmentLayout,
         const bool& bUseAsResolveAttachment = false
     );
-    VulkanRenderTarget(
-        VulkanTexture* pTexture,
-        const bool& m_bUseAsResolveAttachment = false
-    );
-    ~VulkanRenderTarget() = default;
 
     void setTargetSemantics(
         const vk::AttachmentLoadOp& targetLoadOp, const vk::AttachmentStoreOp& targetStoreOp,
         const vk::AttachmentLoadOp& stencilLoadOp, const vk::AttachmentStoreOp& stencilStoreOp
     );
+
     void setTargetLayout(
-        const vk::ImageLayout& initialLayout, const vk::ImageLayout& finalLayout,
-        const vk::ImageLayout& referenceLayout
+        const vk::ImageLayout& initialLayout, const vk::ImageLayout& finalLayout
     );
 
-    vk::ImageView m_imgView;
     vk::Format m_imgFormat;
     vk::SampleCountFlagBits m_imgSampleCount;
 
